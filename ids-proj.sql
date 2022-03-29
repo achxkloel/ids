@@ -30,3 +30,12 @@ CREATE TABLE MODULE (
     author VARCHAR(255),
     patch_id INT
 );
+
+CREATE TABLE PATCH (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    create_date DATE,
+    deployment_date DATE,
+    status VARCHAR(255),
+    created_by VARCHAR(255),
+    approved_by VARCHAR(255),
+);
