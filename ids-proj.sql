@@ -12,3 +12,21 @@ CREATE TABLE PERSON (
     role VARCHAR(255),
     position VARCHAR(255)
 );
+
+CREATE TABLE TICKET (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(255),
+    description VARCHAR(255),
+    create_date DATE,
+    status VARCHAR(255),
+    created_by VARCHAR(255),
+    patch_id INT
+);
+
+CREATE TABLE MODULE (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(255),
+    create_date DATE,
+    author VARCHAR(255),
+    patch_id INT
+);
