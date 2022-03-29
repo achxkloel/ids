@@ -37,5 +37,24 @@ CREATE TABLE PATCH (
     deployment_date DATE,
     status VARCHAR(255),
     created_by VARCHAR(255),
-    approved_by VARCHAR(255),
+    approved_by VARCHAR(255)
 );
+
+CREATE TABLE BUG (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(255),
+    description VARCHAR(255),
+    priority VARCHAR(255),
+    module_id INT
+);
+
+CREATE TABLE PROG_LANG (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(255)
+)
+
+CREATE TABLE REWARD (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    amount INT,
+    user_login VARCHAR(255)
+)
