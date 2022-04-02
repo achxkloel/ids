@@ -33,12 +33,12 @@ CREATE TABLE PERSON (
 
 CREATE TABLE TICKET (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255),
-    description VARCHAR(255),
-    create_date DATE,
-    status VARCHAR(255),
-    created_by INT,
-    patch_id INT
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255) DEFAULT NULL,
+    create_date DATE NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    created_by INT NOT NULL,
+    patch_id INT NOT NULL
 );
 
 CREATE TABLE MODULE (
@@ -51,19 +51,19 @@ CREATE TABLE MODULE (
 
 CREATE TABLE PATCH (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    create_date DATE,
-    deployment_date DATE,
-    status VARCHAR(255),
-    created_by INT,
-    approved_by INT
+    create_date DATE NOT NULL,
+    deployment_date DATE DEFAULT NULL,
+    status VARCHAR(255) NOT NULL,
+    created_by INT NOT NULL,
+    approved_by INT NOT NULL
 );
 
 CREATE TABLE BUG (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255),
-    description VARCHAR(255),
-    priority VARCHAR(255),
-    module_id INT
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255) DEFAULT NULL,
+    priority VARCHAR(255) NOT NULL,
+    module_id INT NOT NULL
 );
 
 CREATE TABLE PROG_LANG (
@@ -83,8 +83,8 @@ CREATE TABLE PERSON_PROG_LANGS (
 );
 
 CREATE TABLE MODULE_PROG_LANGS (
-    module_id INT,
-    prog_lang_id INT
+    module_id INT NOT NULL,
+    prog_lang_id INT NOT NULL
 );
 
 CREATE TABLE PERSON_MODULES (
@@ -93,8 +93,8 @@ CREATE TABLE PERSON_MODULES (
 );
 
 CREATE TABLE TICKET_BUGS (
-    ticket_id INT,
-    bug_id INT
+    ticket_id INT NOT NULL,
+    bug_id INT NOT NULL
 );
 
 ------------------------------- vytvoření vazeb -------------------------------
@@ -140,10 +140,49 @@ ALTER TABLE REWARD ADD CONSTRAINT reward_user_id_fk
     FOREIGN KEY (user_id) REFERENCES PERSON(id)
     ON DELETE CASCADE;
 
+ALTER TABLE MODULE_PROG_LANGS ADD CONSTRAINT module_prog_langs_module_id_fk
+    FOREIGN KEY (module_id) REFERENCES MODULE(id)
+    ON DELETE CASCADE;
+ALTER TABLE MODULE_PROG_LANGS ADD CONSTRAINT module_prog_langs_prog_lang_id_fk
+    FOREIGN KEY (prog_lang_id) REFERENCES PROG_LANG(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE TICKET_BUGS ADD CONSTRAINT ticket_bugs_ticket_id_fk
+    FOREIGN KEY (ticket_id) REFERENCES TICKET(id)
+    ON DELETE CASCADE;
+ALTER TABLE TICKET_BUGS ADD CONSTRAINT ticket_bugs_bug_id_fk
+    FOREIGN KEY (bug_id) REFERENCES BUG(id)
+    ON DELETE CASCADE;
+
 ------------------------------- vložení testovacích dat -------------------------------
 INSERT INTO PERSON (login, first_name, second_name, sex, birth_date, email, phone, address, role, position)
-VALUES ('xvince01', 'Lukáš', 'Vincenc', 'M', '01.01.2000', 'xvince@gmail.com', '765 765 765', 'Brno 33', 'programmer', 'developer');
+VALUES ('xvince01', 'Lukáš', 'Vincenc', 'M', TO_DATE('01/01/2000', 'DD/MM/YYYY'), 'xvince@gmail.com', '765 765 765', 'Brno 33', 'programmer', 'developer');
 INSERT INTO PERSON (login, first_name, second_name, sex, birth_date, email, phone, address, role, position)
-VALUES ('xtorbi00', 'Evgeny', 'Torbin', 'M', '02.02.2000', 'xtorbi@gmail.com', '678 678 678', 'Brno 22', 'programmer', 'developer');
+VALUES ('xtorbi00', 'Evgeny', 'Torbin', 'M', TO_DATE('02/02/2000', 'DD/MM/YYYY'), 'xtorbi@gmail.com', '678 678 678', 'Brno 22', 'programmer', 'developer');
 INSERT INTO PERSON (login, first_name, second_name, sex, birth_date, email, phone, address, role, position)
-VALUES ('xuser00', 'Jan', 'Novák', 'M', '03.03.2000', 'xuser@gmail.com', '675 675 675', 'Brno 11', 'user', NULL);
+VALUES ('xuser00', 'Jan', 'Novák', 'M', TO_DATE('03/03/2000', 'DD/MM/YYYY'), 'xuser@gmail.com', '675 675 675', 'Brno 11', 'user', NULL);
+
+INSERT INTO TICKET (name, description, create_date, status, created_by, patch_id)
+VALUES ('ticket no. 1', NULL, TO_DATE('24/12/2021', 'DD/MM/YYYY'), 'V řešení', 1, 1);
+INSERT INTO TICKET (name, create_date, status, created_by, patch_id)
+VALUES ('ticket no. 2', 'example description', TO_DATE('01/04/2022', 'DD/MM/YYYY'), 'Vyřešen', 2, 2);
+
+INSERT INTO PATCH (create_date, deployment_date, status, created_by, approved_by)
+VALUES (TO_DATE('05/01/2022'), NULL, 'Implementován', 2, 1);
+INSERT INTO PATCH (create_date, deployment_date, status, created_by, approved_by)
+VALUES (TO_DATE('06/03/2022'), TO_DATE('25/03/2022'), 'Nasazeno', 3, 2);
+
+INSERT INTO BUG (name, description, priority, module_id)
+VALUES ('bug no. 1', 'example description', 'high', 1);
+INSERT INTO BUG (name, description, priority, module_id)
+VALUES ('bug no. 2', NULL, 'low', 2);
+
+INSERT INTO MODULE_PROG_LANGS (module_id, prog_lang_id)
+VALUES (1, 1);
+INSERT INTO MODULE_PROG_LANGS (module_id, prog_lang_id)
+VALUES (2, 1);
+
+INSERT INTO TICKET_BUGS (ticket_id, bug_id)
+VALUES (1, 1);
+INSERT INTO TICKET_BUGS (ticket_id, bug_id)
+VALUES (1, 2);
