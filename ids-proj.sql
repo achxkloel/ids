@@ -1,3 +1,12 @@
+/****************************************************************
+**  Projekt:    IDS - 2. část
+**  Autory:     Vincenc Lukáš <xvince01@vut.cz>
+**              Torbin Evgeny <xtorbi00@vut.cz>
+**  Téma:       Bug tracker
+**  Popis:      SQL skript pro vytvoření databáze informačního
+**              systému pro hlášení a správu chyb
+*****************************************************************/
+
 ------------------------------- mazání tabulek -------------------------------
 DROP TABLE PERSON;
 DROP TABLE TICKET;
