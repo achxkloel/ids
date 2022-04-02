@@ -23,7 +23,7 @@ CREATE TABLE PERSON (
     birth_date DATE NOT NULL,
     email VARCHAR(255) NOT NULL
         CHECK(REGEXP_LIKE(
-			"email", '^[a-z]+[a-z0-9\.]*@[a-z0-9\.-]+\.[a-z]{2,}$', 'i'
+			email, '^[a-z]+[a-z0-9\.]*@[a-z0-9\.-]+\.[a-z]{2,}$', 'i'
 		)),,
     phone VARCHAR(255) NOT NULL,
     address VARCHAR(255) NOT NULL,
