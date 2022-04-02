@@ -24,7 +24,7 @@ CREATE TABLE PERSON (
     email VARCHAR(255) NOT NULL
         CHECK(REGEXP_LIKE(
 			email, '^[a-z]+[a-z0-9\.]*@[a-z0-9\.-]+\.[a-z]{2,}$', 'i'
-		)),,
+		)),
     phone VARCHAR(255) NOT NULL,
     address VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
@@ -43,10 +43,10 @@ CREATE TABLE TICKET (
 
 CREATE TABLE MODULE (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255),
-    create_date DATE,
-    author INT,
-    patch_id INT
+    name VARCHAR(255) NOT NULL,
+    create_date DATE NOT NULL,
+    author INT NOT NULL,
+    patch_id INT NOT NULL
 );
 
 CREATE TABLE PATCH (
@@ -68,18 +68,18 @@ CREATE TABLE BUG (
 
 CREATE TABLE PROG_LANG (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE REWARD (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    amount INT,
-    user_id INT
+    amount INT DEFAULT 0,
+    person_id INT NOT NULL
 );
 
 CREATE TABLE PERSON_PROG_LANGS (
-    person_id INT,
-    prog_lang_id INT
+    person_id INT NOT NULL,
+    prog_lang_id INT NOT NULL
 );
 
 CREATE TABLE MODULE_PROG_LANGS (
@@ -88,8 +88,8 @@ CREATE TABLE MODULE_PROG_LANGS (
 );
 
 CREATE TABLE PERSON_MODULES (
-    person_id INT,
-    module_id INT
+    person_id INT NOT NULL,
+    module_id INT NOT NULL
 );
 
 CREATE TABLE TICKET_BUGS (
@@ -136,8 +136,8 @@ ALTER TABLE BUG ADD CONSTRAINT bug_module_id_fk
 
 ----------------- vazba odměny -----------------
 -- vazba mezi odměnou a uživatelem, který ji dostane
-ALTER TABLE REWARD ADD CONSTRAINT reward_user_id_fk
-    FOREIGN KEY (user_id) REFERENCES PERSON(id)
+ALTER TABLE REWARD ADD CONSTRAINT reward_person_id_fk
+    FOREIGN KEY (person_id) REFERENCES PERSON(id)
     ON DELETE CASCADE;
 
 ALTER TABLE MODULE_PROG_LANGS ADD CONSTRAINT module_prog_langs_module_id_fk
@@ -152,6 +152,20 @@ ALTER TABLE TICKET_BUGS ADD CONSTRAINT ticket_bugs_ticket_id_fk
     ON DELETE CASCADE;
 ALTER TABLE TICKET_BUGS ADD CONSTRAINT ticket_bugs_bug_id_fk
     FOREIGN KEY (bug_id) REFERENCES BUG(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE PERSON_PROG_LANGS ADD CONSTRAINT person_prog_langs_person_id_fk
+    FOREIGN KEY (person_id) REFERENCES PERSON(id)
+    ON DELETE CASCADE;
+ALTER TABLE PERSON_PROG_LANGS ADD CONSTRAINT person_prog_langs_prog_lang_id_fk
+    FOREIGN KEY (prog_lang_id) REFERENCES PROG_LANG(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE PERSON_MODULES ADD CONSTRAINT person_modules_person_id_fk
+    FOREIGN KEY (person_id) REFERENCES PERSON(id)
+    ON DELETE CASCADE;
+ALTER TABLE PERSON_MODULES ADD CONSTRAINT person_modules_module_id_fk
+    FOREIGN KEY (module_id) REFERENCES MODULE(id)
     ON DELETE CASCADE;
 
 ------------------------------- vložení testovacích dat -------------------------------
