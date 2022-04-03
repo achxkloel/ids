@@ -452,7 +452,7 @@ INSERT INTO Ticket (name, create_date, status, created_by, patch_id)
 VALUES ('Wrong time', '2022-04-02', 'opened', 3, NULL);
 
 INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
-VALUES ('Button does not showing', '', '2022-04-03', 'closed', 4, 3);
+VALUES ('Button is not showing up', '', '2022-04-03', 'closed', 4, 3);
 
 ----
 -- Bug
