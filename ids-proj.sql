@@ -31,12 +31,12 @@ DROP TABLE PERSON;
 -- Person
 --
 -- Reprezentuje entitu Uživatel.
--- Na rozdíl od datového modelu byl přídan atribut "id",
--- který stál novým primárním klíčem místo atributu "login".
+-- Na rozdíl od datového modelu byl přidán atribut "id",
+-- který se stal novým primárním klíčem místo atributu "login".
 --
 -- Vztah generalizace mezi Programátorem a Uživatelem
--- je transformován do jedné tabulky, kde rozlišení specizací
--- podle diskriminátoru "role".
+-- je transformován do jedné tabulky, kde jsou specializace
+-- rozlišeny podle diskriminátoru "role".
 ----
 CREATE TABLE Person (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -173,7 +173,7 @@ CREATE TABLE Ticket_bugs (
 );
 
 -- =============================
--- PŘÍDÁNÍ VAZEB
+-- PŘIDÁNÍ VAZEB
 -- =============================
 
 ----
@@ -317,7 +317,7 @@ INSERT INTO Person (
     'Lukáš',
     'Vincenc',
     'M',
-    '01-01-2000', -- TO_DATE
+    '2000-01-01', -- TO_DATE
     'xvince01@gmail.com',
     '765 765 765',
     'Božetěchová 44, Brno',
@@ -334,7 +334,7 @@ INSERT INTO Person (
     'Evgeny',
     'Torbin',
     'M',
-    '02/02/2000', -- TO DATE
+    '2000-02-02', -- TO DATE
     'xtorbi00@gmail.com',
     '678 678 678',
     'Božetěchová 33, Brno',
@@ -351,7 +351,7 @@ INSERT INTO Person (
     'Jan',
     'Novák',
     'M',
-    '03/03/2000', -- TO DATE
+    '2000-03-03', -- TO DATE
     'xnovak00@gmail.com',
     '675 675 675',
     'Božetěchová 22, Brno',
@@ -368,7 +368,7 @@ INSERT INTO Person (
     'Jana',
     'Novákova',
     'F',
-    '04/04/2000', -- TO_DATE
+    '2000-04-04', -- TO_DATE
     'xnovak01@gmail.com',
     '638 638 638',
     'Božetěchová 11, Brno',
@@ -407,26 +407,26 @@ INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (4, 5);
 ----
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES ('05/01/2022', NULL, 'in process', 1, NULL); -- TO_DATE
+VALUES ('2022-01-05', NULL, 'in process', 1, NULL); -- TO_DATE
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES ('05/02/2022', NULL, 'in process', 3, NULL); -- TO_DATE
+VALUES ('2022-02-05', NULL, 'in process', 3, NULL); -- TO_DATE
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES ('06/03/2022', '25/03/2022', 'approved', 2, 1); -- TO_DATE
+VALUES ('2022-03-06', '25/03/2022', 'approved', 2, 1); -- TO_DATE
 
 ----
 -- Moduly
 ----
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('View component', '01/04/2022', 1, NULL); -- TO_DATE
+VALUES ('View component', '2022-04-01', 1, NULL); -- TO_DATE
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('Button component', '01/04/2022', 1, 1); -- TO_DATE
+VALUES ('Button component', '2022-04-01', 1, 1); -- TO_DATE
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('Time library', '01/04/2022', 1, 2); -- TO_DATE
+VALUES ('Time library', '2022-04-01', 1, 2); -- TO_DATE
 
 ----
 -- Programovací jazyky modulů
@@ -452,10 +452,10 @@ INSERT INTO Person_modules (person_id, module_id) VALUES (2, 3);
 -- TODO: proč description může být null, ne prázdný řetězec třeba?
 
 INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
-VALUES ('Wrong time', NULL, '02/04/2022', 'opened', 3, NULL); -- TO_DATE
+VALUES ('Wrong time', NULL, '2022-04-02', 'opened', 3, NULL); -- TO_DATE
 
 INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
-VALUES ('Button does not showing', '', '03/04/2022', 'closed', 4, 3); -- TO_DATE
+VALUES ('Button does not showing', '', '2022-04-03', 'closed', 4, 3); -- TO_DATE
 
 ----
 -- Bug
