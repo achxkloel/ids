@@ -45,12 +45,11 @@ CREATE TABLE Person (
     second_name VARCHAR(255) NOT NULL,
     sex CHAR NOT NULL,
     birth_date VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL
-        -- TODO: rewrite regex
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(255) NOT NULL
         CHECK(REGEXP_LIKE(
-			email, '^[a-z]+[a-z0-9\.]*@[a-z0-9\.-]+\.[a-z]{2,}$', 'i'
+			email, '^(\+\d{1,4}\s)?\d{3}\s?\d{3}\s?\d{3}$', 'i'
 		)),
-    phone VARCHAR(255) NOT NULL,
     address VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
     position VARCHAR(255)
