@@ -67,7 +67,7 @@ CREATE TABLE Ticket (
     description VARCHAR(255) DEFAULT '',
     create_date VARCHAR(255) NOT NULL,
     status VARCHAR(255) NOT NULL,
-    created_by INT NOT NULL,
+    created_by INT DEFAULT NULL,
     patch_id INT DEFAULT NULL
 );
 
@@ -94,7 +94,7 @@ CREATE TABLE Patch (
     create_date VARCHAR(255) NOT NULL,
     deployment_date VARCHAR(255) DEFAULT NULL,
     status VARCHAR(255) NOT NULL,
-    created_by INT NOT NULL,
+    created_by INT DEFAULT NULL,
     approved_by INT DEFAULT NULL
 );
 
