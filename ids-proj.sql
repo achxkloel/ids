@@ -48,7 +48,7 @@ CREATE TABLE Person (
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(255) NOT NULL
         CHECK(REGEXP_LIKE(
-			email, '^(\+\d{1,4}\s)?\d{3}\s?\d{3}\s?\d{3}$', 'i'
+			phone, '^(\+\d{1,4}\s)?\d{3}\s?\d{3}\s?\d{3}$', 'i'
 		)),
     address VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
