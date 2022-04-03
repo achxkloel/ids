@@ -31,6 +31,9 @@ DROP TABLE TICKET_BUGS;
 -- Person
 --
 -- Reprezentuje entitu Uživatel.
+-- Na rozdíl od datového modelu byl přídan atribut "id",
+-- který stál novým primárním klíčem místo atributu "login".
+--
 -- Vztah generalizace mezi Programátorem a Uživatelem
 -- je transformován do jedné tabulky, kde rozlišení specizací
 -- podle diskriminátoru "role".
@@ -65,7 +68,7 @@ CREATE TABLE Ticket (
     create_date DATE NOT NULL,
     status VARCHAR(255) NOT NULL,
     created_by INT NOT NULL,
-    patch_id INT NOT NULL
+    patch_id INT DEFAULT NULL
 );
 
 ----
@@ -78,7 +81,7 @@ CREATE TABLE Module (
     name VARCHAR(255) NOT NULL,
     create_date DATE NOT NULL,
     author INT NOT NULL,
-    patch_id INT NOT NULL
+    patch_id INT DEFAULT NULL
 );
 
 ----
@@ -92,7 +95,7 @@ CREATE TABLE Patch (
     deployment_date DATE DEFAULT NULL,
     status VARCHAR(255) NOT NULL,
     created_by INT NOT NULL,
-    approved_by INT NOT NULL
+    approved_by INT DEFAULT NULL
 );
 
 ----
@@ -300,34 +303,185 @@ ALTER TABLE Person_modules ADD CONSTRAINT person_modules_module_id_fk
 -- =============================
 -- VLOŽENÍ UKÁZKOVÝCH DAT
 -- =============================
-INSERT INTO PERSON (login, first_name, second_name, sex, birth_date, email, phone, address, role, position)
-VALUES ('xvince01', 'Lukáš', 'Vincenc', 'M', TO_DATE('01/01/2000', 'DD/MM/YYYY'), 'xvince@gmail.com', '765 765 765', 'Brno 33', 'programmer', 'developer');
-INSERT INTO PERSON (login, first_name, second_name, sex, birth_date, email, phone, address, role, position)
-VALUES ('xtorbi00', 'Evgeny', 'Torbin', 'M', TO_DATE('02/02/2000', 'DD/MM/YYYY'), 'xtorbi@gmail.com', '678 678 678', 'Brno 22', 'programmer', 'developer');
-INSERT INTO PERSON (login, first_name, second_name, sex, birth_date, email, phone, address, role, position)
-VALUES ('xuser00', 'Jan', 'Novák', 'M', TO_DATE('03/03/2000', 'DD/MM/YYYY'), 'xuser@gmail.com', '675 675 675', 'Brno 11', 'user', NULL);
 
-INSERT INTO TICKET (name, description, create_date, status, created_by, patch_id)
-VALUES ('ticket no. 1', NULL, TO_DATE('24/12/2021', 'DD/MM/YYYY'), 'V řešení', 1, 1);
-INSERT INTO TICKET (name, create_date, status, created_by, patch_id)
-VALUES ('ticket no. 2', 'example description', TO_DATE('01/04/2022', 'DD/MM/YYYY'), 'Vyřešen', 2, 2);
+----
+-- Uživatele
+----
 
-INSERT INTO PATCH (create_date, deployment_date, status, created_by, approved_by)
-VALUES (TO_DATE('05/01/2022'), NULL, 'Implementován', 2, 1);
-INSERT INTO PATCH (create_date, deployment_date, status, created_by, approved_by)
-VALUES (TO_DATE('06/03/2022'), TO_DATE('25/03/2022'), 'Nasazeno', 3, 2);
+INSERT INTO Person (
+    login, first_name, second_name, sex,
+    birth_date, email, phone, address,
+    role, position
+) VALUES (
+    'xvince01',
+    'Lukáš',
+    'Vincenc',
+    'M',
+    TO_DATE('01/01/2000', 'DD/MM/YYYY'),
+    'xvince01@gmail.com',
+    '765 765 765',
+    'Božetěchová 44, Brno',
+    'programmer',
+    'main developer'
+);
 
-INSERT INTO BUG (name, description, priority, module_id)
-VALUES ('bug no. 1', 'example description', 'high', 1);
-INSERT INTO BUG (name, description, priority, module_id)
-VALUES ('bug no. 2', NULL, 'low', 2);
+INSERT INTO Person (
+    login, first_name, second_name, sex,
+    birth_date, email, phone, address,
+    role, position
+) VALUES (
+    'xtorbi00',
+    'Evgeny',
+    'Torbin',
+    'M',
+    TO_DATE('02/02/2000', 'DD/MM/YYYY'),
+    'xtorbi00@gmail.com',
+    '678 678 678',
+    'Božetěchová 33, Brno',
+    'programmer',
+    'developer'
+);
 
-INSERT INTO MODULE_PROG_LANGS (module_id, prog_lang_id)
-VALUES (1, 1);
-INSERT INTO MODULE_PROG_LANGS (module_id, prog_lang_id)
-VALUES (2, 1);
+INSERT INTO Person (
+    login, first_name, second_name, sex,
+    birth_date, email, phone, address,
+    role, position
+) VALUES (
+    'xnovak00',
+    'Jan',
+    'Novák',
+    'M',
+    TO_DATE('03/03/2000', 'DD/MM/YYYY'),
+    'xnovak00@gmail.com',
+    '675 675 675',
+    'Božetěchová 22, Brno',
+    'user',
+    NULL
+);
 
-INSERT INTO TICKET_BUGS (ticket_id, bug_id)
-VALUES (1, 1);
-INSERT INTO TICKET_BUGS (ticket_id, bug_id)
-VALUES (1, 2);
+INSERT INTO Person (
+    login, first_name, second_name, sex,
+    birth_date, email, phone, address,
+    role, position
+) VALUES (
+    'xnovak01',
+    'Jana',
+    'Novákova',
+    'F',
+    TO_DATE('04/04/2000', 'DD/MM/YYYY'),
+    'xnovak01@gmail.com',
+    '638 638 638',
+    'Božetěchová 11, Brno',
+    'user',
+    NULL
+);
+
+----
+-- Programovací jazyky
+----
+
+INSERT INTO Prog_lang (name) VALUES ('Javascript');
+INSERT INTO Prog_lang (name) VALUES ('C++');
+INSERT INTO Prog_lang (name) VALUES ('Kotlin');
+INSERT INTO Prog_lang (name) VALUES ('C');
+INSERT INTO Prog_lang (name) VALUES ('Go');
+INSERT INTO Prog_lang (name) VALUES ('Java');
+INSERT INTO Prog_lang (name) VALUES ('Python');
+INSERT INTO Prog_lang (name) VALUES ('PHP');
+
+----
+-- Programovací jazyky, kterými uživatele disponují
+----
+
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (1, 1);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (1, 4);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (1, 8);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (2, 1);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (2, 7);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (3, 6);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (3, 3);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (4, 5);
+
+----
+-- Patche
+----
+
+INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
+VALUES (TO_DATE('05/01/2022'), NULL, 'in process', 1, NULL);
+
+INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
+VALUES (TO_DATE('05/02/2022'), NULL, 'in process', 3, NULL);
+
+INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
+VALUES (TO_DATE('06/03/2022'), TO_DATE('25/03/2022'), 'approved', 2, 1);
+
+----
+-- Moduly
+----
+
+INSERT INTO Module (name, create_date, author, patch_id)
+VALUES ('View component', TO_DATE('01/04/2022', 'DD/MM/YYYY'), 1, NULL);
+
+INSERT INTO Module (name, create_date, author, patch_id)
+VALUES ('Button component', TO_DATE('01/04/2022', 'DD/MM/YYYY'), 1, 1);
+
+INSERT INTO Module (name, create_date, author, patch_id)
+VALUES ('Time library', TO_DATE('01/04/2022', 'DD/MM/YYYY'), 1, 2);
+
+----
+-- Programovací jazyky modulů
+----
+
+INSERT INTO Module_prog_langs (module_id, prog_lang_id) VALUES (1, 1);
+INSERT INTO Module_prog_langs (module_id, prog_lang_id) VALUES (2, 1);
+INSERT INTO Module_prog_langs (module_id, prog_lang_id) VALUES (3, 2);
+INSERT INTO Module_prog_langs (module_id, prog_lang_id) VALUES (3, 4);
+
+----
+-- Person modules
+----
+
+INSERT INTO Person_modules (person_id, module_id) VALUES (2, 1);
+INSERT INTO Person_modules (person_id, module_id) VALUES (2, 2);
+INSERT INTO Person_modules (person_id, module_id) VALUES (2, 3);
+
+----
+-- Tikety
+----
+
+-- TODO: proč description může být null, ne prázdný řetězec třeba?
+
+INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
+VALUES ('Wrong time', NULL, TO_DATE('02/04/2022', 'DD/MM/YYYY'), 'opened', 3, NULL);
+
+INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
+VALUES ('Button does not showing', '', TO_DATE('03/04/2022', 'DD/MM/YYYY'), 'closed', 4, 3);
+
+----
+-- Bug
+----
+
+-- TODO: stejná otázka jako u tiketu.
+
+INSERT INTO Bug (name, description, priority, module_id)
+VALUES ('bug no. 1', 'breaks the whole component', 'high', 2);
+
+INSERT INTO Bug (name, description, priority, module_id)
+VALUES ('bug no. 2', NULL, 'low', 3);
+
+INSERT INTO Bug (name, description, priority, module_id)
+VALUES ('bug no. 3', NULL, 'low', 3);
+
+----
+-- Bugy, které jsou obsazeny v Tiketech
+----
+
+INSERT INTO Ticket_bugs (ticket_id, bug_id) VALUES (2, 1);
+INSERT INTO Ticket_bugs (ticket_id, bug_id) VALUES (1, 2);
+INSERT INTO Ticket_bugs (ticket_id, bug_id) VALUES (1, 3);
+
+----
+-- Odměny
+----
+
+INSERT INTO Reward (amount, person_id) VALUES ('5000', 3);
