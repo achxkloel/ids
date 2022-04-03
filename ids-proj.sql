@@ -44,7 +44,7 @@ CREATE TABLE Person (
     first_name VARCHAR(255) NOT NULL,
     second_name VARCHAR(255) NOT NULL,
     sex CHAR NOT NULL,
-    birth_date VARCHAR(255) NOT NULL, -- DATE
+    birth_date VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL
         -- TODO: rewrite regex
         CHECK(REGEXP_LIKE(
@@ -64,8 +64,8 @@ CREATE TABLE Person (
 CREATE TABLE Ticket (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description VARCHAR(255) DEFAULT NULL,
-    create_date VARCHAR(255) NOT NULL, -- DATE
+    description VARCHAR(255) DEFAULT '',
+    create_date VARCHAR(255) NOT NULL,
     status VARCHAR(255) NOT NULL,
     created_by INT NOT NULL,
     patch_id INT DEFAULT NULL
@@ -79,7 +79,7 @@ CREATE TABLE Ticket (
 CREATE TABLE Module (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    create_date VARCHAR(255) NOT NULL, -- DATE
+    create_date VARCHAR(255) NOT NULL,
     author INT NOT NULL,
     patch_id INT DEFAULT NULL
 );
@@ -91,8 +91,8 @@ CREATE TABLE Module (
 ----
 CREATE TABLE Patch (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    create_date VARCHAR(255) NOT NULL, -- DATE
-    deployment_date VARCHAR(255) DEFAULT NULL, -- DATE
+    create_date VARCHAR(255) NOT NULL,
+    deployment_date VARCHAR(255) DEFAULT NULL,
     status VARCHAR(255) NOT NULL,
     created_by INT NOT NULL,
     approved_by INT DEFAULT NULL
@@ -106,7 +106,7 @@ CREATE TABLE Patch (
 CREATE TABLE Bug (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description VARCHAR(255) DEFAULT NULL,
+    description VARCHAR(255) DEFAULT '',
     priority VARCHAR(255) NOT NULL,
     module_id INT NOT NULL
 );
@@ -183,7 +183,7 @@ CREATE TABLE Ticket_bugs (
 -- Uživatel [1] ---> [0..n] Tiket
 ALTER TABLE Ticket ADD CONSTRAINT ticket_created_by_fk
     FOREIGN KEY (created_by) REFERENCES Person(id)
-    ON DELETE CASCADE;
+    ON DELETE SET NULL;
 
 -- Patch [1] ---> [1..n] Tiket
 ALTER TABLE Ticket ADD CONSTRAINT ticket_patch_id_fk
@@ -202,7 +202,7 @@ ALTER TABLE Module ADD CONSTRAINT module_author_fk
 -- Patch [1] ---> [1..n] Modul
 ALTER TABLE Module ADD CONSTRAINT module_patch_id_fk
     FOREIGN KEY (patch_id) REFERENCES Patch(id)
-    ON DELETE CASCADE;
+    ON DELETE SET NULL;
 
 ----
 -- Patch
@@ -211,12 +211,12 @@ ALTER TABLE Module ADD CONSTRAINT module_patch_id_fk
 -- Uživatel [1] ---> [0..n] Patch (vytvoření)
 ALTER TABLE Patch ADD CONSTRAINT patch_created_by_fk
     FOREIGN KEY (created_by) REFERENCES Person(id)
-    ON DELETE CASCADE;
+    ON DELETE SET NULL;
 
 -- Uživatel [1] ---> [0..n] Patch (schválení)
 ALTER TABLE Patch ADD CONSTRAINT patch_approved_by_fk
     FOREIGN KEY (approved_by) REFERENCES Person(id)
-    ON DELETE CASCADE;
+    ON DELETE SET NULL;
 
 ----
 -- Bug
@@ -317,7 +317,7 @@ INSERT INTO Person (
     'Lukáš',
     'Vincenc',
     'M',
-    '2000-01-01', -- TO_DATE
+    '2000-01-01',
     'xvince01@gmail.com',
     '765 765 765',
     'Božetěchová 44, Brno',
@@ -368,7 +368,7 @@ INSERT INTO Person (
     'Jana',
     'Novákova',
     'F',
-    '2000-04-04', -- TO_DATE
+    '2000-04-04',
     'xnovak01@gmail.com',
     '638 638 638',
     'Božetěchová 11, Brno',
@@ -407,26 +407,26 @@ INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (4, 5);
 ----
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES ('2022-01-05', NULL, 'in process', 1, NULL); -- TO_DATE
+VALUES ('2022-01-05', NULL, 'in process', 1, NULL);
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES ('2022-02-05', NULL, 'in process', 3, NULL); -- TO_DATE
+VALUES ('2022-02-05', NULL, 'in process', 3, NULL);
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES ('2022-03-06', '25/03/2022', 'approved', 2, 1); -- TO_DATE
+VALUES ('2022-03-06', '2022-03-25', 'approved', 2, 1);
 
 ----
 -- Moduly
 ----
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('View component', '2022-04-01', 1, NULL); -- TO_DATE
+VALUES ('View component', '2022-04-01', 1, NULL);
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('Button component', '2022-04-01', 1, 1); -- TO_DATE
+VALUES ('Button component', '2022-04-01', 1, 1);
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('Time library', '2022-04-01', 1, 2); -- TO_DATE
+VALUES ('Time library', '2022-04-01', 1, 2);
 
 ----
 -- Programovací jazyky modulů
@@ -449,28 +449,24 @@ INSERT INTO Person_modules (person_id, module_id) VALUES (2, 3);
 -- Tikety
 ----
 
--- TODO: proč description může být null, ne prázdný řetězec třeba?
+INSERT INTO Ticket (name, create_date, status, created_by, patch_id)
+VALUES ('Wrong time', '2022-04-02', 'opened', 3, NULL);
 
 INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
-VALUES ('Wrong time', NULL, '2022-04-02', 'opened', 3, NULL); -- TO_DATE
-
-INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
-VALUES ('Button does not showing', '', '2022-04-03', 'closed', 4, 3); -- TO_DATE
+VALUES ('Button does not showing', '', '2022-04-03', 'closed', 4, 3);
 
 ----
 -- Bug
 ----
 
--- TODO: stejná otázka jako u tiketu.
-
 INSERT INTO Bug (name, description, priority, module_id)
 VALUES ('bug no. 1', 'breaks the whole component', 'high', 2);
 
-INSERT INTO Bug (name, description, priority, module_id)
-VALUES ('bug no. 2', NULL, 'low', 3);
+INSERT INTO Bug (name, priority, module_id)
+VALUES ('bug no. 2', 'low', 3);
 
-INSERT INTO Bug (name, description, priority, module_id)
-VALUES ('bug no. 3', NULL, 'low', 3);
+INSERT INTO Bug (name, priority, module_id)
+VALUES ('bug no. 3', 'low', 3);
 
 ----
 -- Bugy, které jsou obsazeny v Tiketech
