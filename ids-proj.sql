@@ -407,13 +407,13 @@ INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (4, 5);
 ----
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES (TO_DATE('05/01/2022'), NULL, 'in process', 1, NULL);
+VALUES (TO_DATE('05/01/2022', 'DD/MM/YYYY'), NULL, 'in process', 1, NULL);
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES (TO_DATE('05/02/2022'), NULL, 'in process', 3, NULL);
+VALUES (TO_DATE('05/02/2022', 'DD/MM/YYYY'), NULL, 'in process', 3, NULL);
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES (TO_DATE('06/03/2022'), TO_DATE('25/03/2022'), 'approved', 2, 1);
+VALUES (TO_DATE('06/03/2022', 'DD/MM/YYYY'), TO_DATE('25/03/2022'), 'approved', 2, 1);
 
 ----
 -- Moduly
