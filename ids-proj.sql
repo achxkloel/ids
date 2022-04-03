@@ -11,17 +11,17 @@
 -- ODSTRANĚNÍ TABULEK
 -- =============================
 
-DROP TABLE PERSON;
-DROP TABLE TICKET;
-DROP TABLE MODULE;
-DROP TABLE PATCH;
-DROP TABLE BUG;
-DROP TABLE PROG_LANG;
-DROP TABLE REWARD;
 DROP TABLE PERSON_PROG_LANGS;
 DROP TABLE MODULE_PROG_LANGS;
 DROP TABLE PERSON_MODULES;
 DROP TABLE TICKET_BUGS;
+DROP TABLE REWARD;
+DROP TABLE BUG;
+DROP TABLE TICKET;
+DROP TABLE MODULE;
+DROP TABLE PATCH;
+DROP TABLE PROG_LANG;
+DROP TABLE PERSON;
 
 -- =============================
 -- VYTVOŘENÍ TABULEK
@@ -44,7 +44,7 @@ CREATE TABLE Person (
     first_name VARCHAR(255) NOT NULL,
     second_name VARCHAR(255) NOT NULL,
     sex CHAR NOT NULL,
-    birth_date DATE NOT NULL,
+    birth_date VARCHAR(255) NOT NULL, -- DATE
     email VARCHAR(255) NOT NULL
         -- TODO: rewrite regex
         CHECK(REGEXP_LIKE(
@@ -65,7 +65,7 @@ CREATE TABLE Ticket (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255) DEFAULT NULL,
-    create_date DATE NOT NULL,
+    create_date VARCHAR(255) NOT NULL, -- DATE
     status VARCHAR(255) NOT NULL,
     created_by INT NOT NULL,
     patch_id INT DEFAULT NULL
@@ -79,7 +79,7 @@ CREATE TABLE Ticket (
 CREATE TABLE Module (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    create_date DATE NOT NULL,
+    create_date VARCHAR(255) NOT NULL, -- DATE
     author INT NOT NULL,
     patch_id INT DEFAULT NULL
 );
@@ -91,8 +91,8 @@ CREATE TABLE Module (
 ----
 CREATE TABLE Patch (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    create_date DATE NOT NULL,
-    deployment_date DATE DEFAULT NULL,
+    create_date VARCHAR(255) NOT NULL, -- DATE
+    deployment_date VARCHAR(255) DEFAULT NULL, -- DATE
     status VARCHAR(255) NOT NULL,
     created_by INT NOT NULL,
     approved_by INT DEFAULT NULL
@@ -317,7 +317,7 @@ INSERT INTO Person (
     'Lukáš',
     'Vincenc',
     'M',
-    TO_DATE('01/01/2000', 'DD/MM/YYYY'),
+    '01-01-2000', -- TO_DATE
     'xvince01@gmail.com',
     '765 765 765',
     'Božetěchová 44, Brno',
@@ -334,7 +334,7 @@ INSERT INTO Person (
     'Evgeny',
     'Torbin',
     'M',
-    TO_DATE('02/02/2000', 'DD/MM/YYYY'),
+    '02/02/2000', -- TO DATE
     'xtorbi00@gmail.com',
     '678 678 678',
     'Božetěchová 33, Brno',
@@ -351,7 +351,7 @@ INSERT INTO Person (
     'Jan',
     'Novák',
     'M',
-    TO_DATE('03/03/2000', 'DD/MM/YYYY'),
+    '03/03/2000', -- TO DATE
     'xnovak00@gmail.com',
     '675 675 675',
     'Božetěchová 22, Brno',
@@ -368,7 +368,7 @@ INSERT INTO Person (
     'Jana',
     'Novákova',
     'F',
-    TO_DATE('04/04/2000', 'DD/MM/YYYY'),
+    '04/04/2000', -- TO_DATE
     'xnovak01@gmail.com',
     '638 638 638',
     'Božetěchová 11, Brno',
@@ -407,26 +407,26 @@ INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (4, 5);
 ----
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES (TO_DATE('05/01/2022', 'DD/MM/YYYY'), NULL, 'in process', 1, NULL);
+VALUES ('05/01/2022', NULL, 'in process', 1, NULL); -- TO_DATE
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES (TO_DATE('05/02/2022', 'DD/MM/YYYY'), NULL, 'in process', 3, NULL);
+VALUES ('05/02/2022', NULL, 'in process', 3, NULL); -- TO_DATE
 
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
-VALUES (TO_DATE('06/03/2022', 'DD/MM/YYYY'), TO_DATE('25/03/2022'), 'approved', 2, 1);
+VALUES ('06/03/2022', '25/03/2022', 'approved', 2, 1); -- TO_DATE
 
 ----
 -- Moduly
 ----
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('View component', TO_DATE('01/04/2022', 'DD/MM/YYYY'), 1, NULL);
+VALUES ('View component', '01/04/2022', 1, NULL); -- TO_DATE
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('Button component', TO_DATE('01/04/2022', 'DD/MM/YYYY'), 1, 1);
+VALUES ('Button component', '01/04/2022', 1, 1); -- TO_DATE
 
 INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('Time library', TO_DATE('01/04/2022', 'DD/MM/YYYY'), 1, 2);
+VALUES ('Time library', '01/04/2022', 1, 2); -- TO_DATE
 
 ----
 -- Programovací jazyky modulů
@@ -452,10 +452,10 @@ INSERT INTO Person_modules (person_id, module_id) VALUES (2, 3);
 -- TODO: proč description může být null, ne prázdný řetězec třeba?
 
 INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
-VALUES ('Wrong time', NULL, TO_DATE('02/04/2022', 'DD/MM/YYYY'), 'opened', 3, NULL);
+VALUES ('Wrong time', NULL, '02/04/2022', 'opened', 3, NULL); -- TO_DATE
 
 INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
-VALUES ('Button does not showing', '', TO_DATE('03/04/2022', 'DD/MM/YYYY'), 'closed', 4, 3);
+VALUES ('Button does not showing', '', '03/04/2022', 'closed', 4, 3); -- TO_DATE
 
 ----
 -- Bug
