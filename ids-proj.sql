@@ -138,7 +138,8 @@ CREATE TABLE Reward (
 ----
 CREATE TABLE Person_prog_langs (
     person_id INT NOT NULL,
-    prog_lang_id INT NOT NULL
+    prog_lang_id INT NOT NULL,
+    PRIMARY KEY (person_id, prog_lang_id)
 );
 
 ----
@@ -148,7 +149,8 @@ CREATE TABLE Person_prog_langs (
 ----
 CREATE TABLE Module_prog_langs (
     module_id INT NOT NULL,
-    prog_lang_id INT NOT NULL
+    prog_lang_id INT NOT NULL,
+    PRIMARY KEY (module_id, prog_lang_id)
 );
 
 ----
@@ -158,7 +160,8 @@ CREATE TABLE Module_prog_langs (
 ----
 CREATE TABLE Person_modules (
     person_id INT NOT NULL,
-    module_id INT NOT NULL
+    module_id INT NOT NULL,
+    PRIMARY KEY (person_id, module_id)
 );
 
 ----
@@ -168,7 +171,8 @@ CREATE TABLE Person_modules (
 ----
 CREATE TABLE Ticket_bugs (
     ticket_id INT NOT NULL,
-    bug_id INT NOT NULL
+    bug_id INT NOT NULL,
+    PRIMARY KEY (ticket_id, bug_id)
 );
 
 -- =============================
