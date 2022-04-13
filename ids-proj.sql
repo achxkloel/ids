@@ -484,3 +484,94 @@ INSERT INTO Ticket_bugs (ticket_id, bug_id) VALUES (1, 3);
 ----
 
 INSERT INTO Reward (amount, person_id) VALUES ('5000', 3);
+
+-- =============================
+-- SELECT DOTAZY
+-- =============================
+
+----
+-- Kteří uživatele disponují programovácím jazykem C++? (login, first_name, second_name, role, position)
+----
+
+SELECT
+    login,
+    first_name,
+    second_name,
+    role,
+    position
+FROM
+    Person_prog_langs PPL
+    JOIN Person P ON PPL.person_id = P.id
+    JOIN Prog_lang PL ON PPL.prog_lang_id = PL.id
+WHERE
+    PL.name = 'C++';
+
+----
+-- Které moduly obsahují více než 3 bugy? (name, pocet_bugu)
+-- Seřazeno sestupně podle počtu bugů.
+----
+
+SELECT
+    M.name,
+    COUNT(*) pocet_bugu
+FROM
+    Module M
+    JOIN Bug B ON M.id = B.module_id
+GROUP BY
+    M.name
+HAVING
+    COUNT(*) > 3
+ORDER BY
+    pocet_bugu DESC;
+
+----
+-- Které programátory (muži) vytvářeli tikety pouze v roce 2022? (login, first_name, second_name, pocet_tiketu)
+----
+
+WITH person_id_list AS (
+    SELECT
+        id,
+        login,
+        first_name,
+        second_name
+    FROM
+        Person P
+    WHERE
+    NOT EXISTS (
+        SELECT * FROM
+            Ticket T
+        WHERE
+            P.id = T.created_by
+            AND P.sex = 'M'
+            AND P.role = 'programmer'
+            AND create_date NOT BETWEEN
+                TO_DATE('2022-01-01', 'YYYY-MM-DD') AND
+                TO_DATE('2022-12-31', 'YYYY-MM-DD')
+    )
+)
+SELECT
+      IDList.login,
+      IDList.first_name,
+      IDList.second_name,
+      COUNT(*) pocet_tiketu
+FROM
+    Ticket T
+    JOIN person_id_list IDList ON T.created_by = IDList.id
+GROUP BY (
+    IDList.login, IDList.first_name, IDList.second_name
+);
+
+----
+-- Které uživatele dostali více než 10000 Kč za celou dobu? (login, celkova_castka)
+----
+
+SELECT
+    login,
+    SUM(amount) celkova_castka
+FROM
+    Person P
+    JOIN Reward R ON P.id = R.person_id
+GROUP BY
+    login
+HAVING
+    SUM(amount) > 10000;
