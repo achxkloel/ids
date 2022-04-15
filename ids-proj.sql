@@ -456,7 +456,10 @@ INSERT INTO Person_modules (person_id, module_id) VALUES (2, 3);
 ----
 
 INSERT INTO Ticket (name, create_date, status, created_by, patch_id)
-VALUES ('Wrong time', '2022-04-02', 'opened', 3, NULL);
+VALUES ('Wrong time', '2022-04-02', 'closed', 3, 4);
+
+INSERT INTO Ticket (name, create_date, status, created_by, patch_id)
+VALUES ('Wrong spelling', '2022-04-02', 'opened', 3, NULL);
 
 INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
 VALUES ('Button is not showing up', '', '2022-04-03', 'closed', 4, 3);
@@ -610,7 +613,7 @@ GROUP BY
     second_name;
 
 ----
--- Kteří uživatelé vytvořili některý modul? (id, jmeno, prijmeni, pocet_patchu)
+-- Kteří uživatelé vytvořili některý modul? (id, jmeno, prijmeni)
 ----
 SELECT
     id,
@@ -623,3 +626,33 @@ WHERE
 IN (
     SELECT author FROM Module GROUP BY author
 );
+
+----
+-- Který patch vyřešil tikety s největším počtem bugů? Může být více Patchů se stejným počtem bugů. (id_patche, author_jmeno, author_prijmeni, pocet_bugu)
+----
+SELECT
+    id id_patche,
+    first_name,
+    second_name,
+    MAX(bugu) pocet_bugu
+FROM (
+    SELECT
+        P.id,
+        Pe.first_name,
+        Pe.second_name,
+        COUNT(T.id) bugu
+    FROM
+        Ticket T
+        JOIN Ticket_bugs Tb on T.id = Tb.ticket_id
+        JOIN Bug B on Tb.bug_id = B.id
+        JOIN Patch P on P.id = T.patch_id
+        JOIN Person Pe on P.created_by = Pe.id
+    GROUP BY
+        P.id,
+        Pe.first_name,
+        Pe.second_name
+)
+GROUP BY
+    id,
+    first_name,
+    second_name;
