@@ -418,6 +418,9 @@ VALUES ('2022-02-05', NULL, 'in process', 3, NULL);
 INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
 VALUES ('2022-03-06', '2022-03-25', 'approved', 2, 1);
 
+INSERT INTO Patch (create_date, deployment_date, status, created_by, approved_by)
+VALUES ('2022-02-11', '2022-03-12', 'approved', 3, 2);
+
 ----
 -- Moduly
 ----
@@ -490,7 +493,7 @@ INSERT INTO Reward (amount, person_id) VALUES ('5000', 3);
 -- =============================
 
 ----
--- Kteří uživatele disponují programovácím jazykem C++? (login, first_name, second_name, role, position)
+-- Kteří uživatelé disponují programovacím jazykem C++? (login, first_name, second_name, role, position)
 ----
 
 SELECT
@@ -525,7 +528,7 @@ ORDER BY
     pocet_bugu DESC;
 
 ----
--- Které programátory (muži) vytvářeli tikety pouze v roce 2022? (login, first_name, second_name, pocet_tiketu)
+-- Kteří programátoři (muži) vytvářeli tikety pouze v roce 2022? (login, first_name, second_name, pocet_tiketu)
 ----
 
 WITH person_id_list AS (
@@ -562,7 +565,7 @@ GROUP BY (
 );
 
 ----
--- Které uživatele dostali více než 10000 Kč za celou dobu? (login, celkova_castka)
+-- Kteří uživatelé dostali více než 10000 Kč za celou dobu? (login, celkova_castka)
 ----
 
 SELECT
@@ -575,3 +578,48 @@ GROUP BY
     login
 HAVING
     SUM(amount) > 10000;
+
+----
+-- Které moduly obsahují bugy s vysokou prioritou? (id, jmeno)
+----
+SELECT
+    M.id,
+    M.name
+FROM
+    Module M
+    JOIN Bug B ON M.id = B.module_id
+WHERE
+    priority = 'high';
+
+----
+-- Kteří uživatelé vytvořili více než jeden patch? (id, jmeno, prijmeni, pocet_patchu)
+----
+SELECT
+    Pe.id,
+    first_name,
+    second_name,
+    COUNT(Pa.id) pocet_patchu
+FROM
+    Patch Pa
+    JOIN Person Pe ON Pa.created_by = Pe.id
+HAVING
+    COUNT(Pa.id) > 1
+GROUP BY
+    Pe.id,
+    first_name,
+    second_name;
+
+----
+-- Kteří uživatelé vytvořili některý modul? (id, jmeno, prijmeni, pocet_patchu)
+----
+SELECT
+    id,
+    first_name,
+    second_name
+FROM
+    Person P
+WHERE
+    P.id
+IN (
+    SELECT author FROM Module GROUP BY author
+);
