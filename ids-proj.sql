@@ -466,6 +466,15 @@ VALUES ('Wrong spelling', '2022-04-02', 'opened', 3, NULL);
 INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
 VALUES ('Button is not showing up', '', '2022-04-03', 'closed', 4, 3);
 
+INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
+VALUES ('System is crashing', '', '2022-04-15', 'opened', 1, NULL);
+
+INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
+VALUES ('Division by zero', '', '2022-01-26', 'opened', 1, NULL);
+
+INSERT INTO Ticket (name, description, create_date, status, created_by, patch_id)
+VALUES ('Web page is not showing up', '', '2022-03-15', 'opened', 2, NULL);
+
 ----
 -- Bug
 ----
@@ -566,13 +575,13 @@ WITH person_id_list AS (
     FROM
         Person P
     WHERE
-    NOT EXISTS (
+        P.sex = 'M'
+        AND P.role = 'programmer'
+    AND NOT EXISTS (
         SELECT * FROM
             Ticket T
         WHERE
             P.id = T.created_by
-            AND P.sex = 'M'
-            AND P.role = 'programmer'
             AND TO_DATE(create_date, 'YYYY-MM-DD') NOT BETWEEN
                 TO_DATE('2022-01-01', 'YYYY-MM-DD') AND
                 TO_DATE('2022-12-31', 'YYYY-MM-DD')
