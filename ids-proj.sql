@@ -404,6 +404,8 @@ INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (2, 7);
 INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (3, 6);
 INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (3, 3);
 INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (4, 5);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (4, 2);
+INSERT INTO Person_prog_langs (person_id, prog_lang_id) VALUES (2, 2);
 
 ----
 -- Patche
@@ -477,6 +479,24 @@ VALUES ('bug no. 2', 'low', 3);
 INSERT INTO Bug (name, priority, module_id)
 VALUES ('bug no. 3', 'low', 3);
 
+INSERT INTO Bug (name, priority, module_id)
+VALUES ('bug no. 4', 'high', 3);
+
+INSERT INTO Bug (name, priority, module_id)
+VALUES ('bug no. 5', 'low', 1);
+
+INSERT INTO Bug (name, priority, module_id)
+VALUES ('bug no. 6', 'low', 3);
+
+INSERT INTO Bug (name, priority, module_id)
+VALUES ('bug no. 7', 'low', 1);
+
+INSERT INTO Bug (name, priority, module_id)
+VALUES ('bug no. 8', 'low', 1);
+
+INSERT INTO Bug (name, priority, module_id)
+VALUES ('bug no. 9', 'low', 1);
+
 ----
 -- Bugy, které jsou obsazeny v Tiketech
 ----
@@ -490,6 +510,9 @@ INSERT INTO Ticket_bugs (ticket_id, bug_id) VALUES (1, 3);
 ----
 
 INSERT INTO Reward (amount, person_id) VALUES ('5000', 3);
+INSERT INTO Reward (amount, person_id) VALUES ('16000', 3);
+INSERT INTO Reward (amount, person_id) VALUES ('20000', 2);
+INSERT INTO Reward (amount, person_id) VALUES ('5000', 1);
 
 -- =============================
 -- SELECT DOTAZY
@@ -550,7 +573,7 @@ WITH person_id_list AS (
             P.id = T.created_by
             AND P.sex = 'M'
             AND P.role = 'programmer'
-            AND create_date NOT BETWEEN
+            AND TO_DATE(create_date, 'YYYY-MM-DD') NOT BETWEEN
                 TO_DATE('2022-01-01', 'YYYY-MM-DD') AND
                 TO_DATE('2022-12-31', 'YYYY-MM-DD')
     )
