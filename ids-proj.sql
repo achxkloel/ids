@@ -309,13 +309,18 @@ ALTER TABLE Person_modules ADD CONSTRAINT person_modules_module_id_fk
 -- =============================
 
 -- Trigger, který při vytvoření nového bugu inkrementuje počítadlo bugů v jednotlivých modulech
-CREATE TRIGGER bugs_in_module_count
-    AFTER INSERT ON Bug
+CREATE OR REPLACE TRIGGER bugs_in_module_count
+    AFTER INSERT OR DELETE ON Bug
+    REFERENCING OLD as deleted NEW AS inserted
     FOR EACH ROW
-WHEN (new.id > 0)
 BEGIN
-    UPDATE Module M SET bugs_count = bugs_count + 1
-    WHERE M.id = :new.module_id;
+    IF INSERTING THEN
+        UPDATE Module M SET bugs_count = bugs_count + 1
+        WHERE M.id = :inserted.module_id;
+    ELSIF DELETING THEN
+        UPDATE Module M SET bugs_count = bugs_count - 1
+        WHERE M.id = :deleted.module_id;
+    END IF;
 END;
 
 -- =============================
@@ -703,3 +708,9 @@ GROUP BY
     id,
     first_name,
     second_name;
+
+-- =============================
+-- PROCEDURY
+-- =============================
+
+
