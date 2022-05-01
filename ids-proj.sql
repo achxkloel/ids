@@ -80,7 +80,8 @@ CREATE TABLE Module (
     name VARCHAR(255) NOT NULL,
     create_date VARCHAR(255) NOT NULL,
     author INT NOT NULL,
-    patch_id INT DEFAULT NULL
+    patch_id INT DEFAULT NULL,
+    bugs_count INT DEFAULT NULL
 );
 
 ----
@@ -304,6 +305,20 @@ ALTER TABLE Person_modules ADD CONSTRAINT person_modules_module_id_fk
     ON DELETE CASCADE;
 
 -- =============================
+-- DATABÁZOVÉ TRIGGERY
+-- =============================
+
+-- Trigger, který při vytvoření nového bugu inkrementuje počítadlo bugů v jednotlivých modulech
+CREATE TRIGGER bugs_in_module_count
+    AFTER INSERT ON Bug
+    FOR EACH ROW
+WHEN (new.id > 0)
+BEGIN
+    UPDATE Module M SET bugs_count = bugs_count + 1
+    WHERE M.id = :new.module_id;
+END;
+
+-- =============================
 -- VLOŽENÍ UKÁZKOVÝCH DAT
 -- =============================
 
@@ -427,14 +442,14 @@ VALUES ('2022-02-11', '2022-03-12', 'approved', 3, 2);
 -- Moduly
 ----
 
-INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('View component', '2022-04-01', 1, NULL);
+INSERT INTO Module (name, create_date, author, patch_id, bugs_count)
+VALUES ('View component', '2022-04-01', 1, NULL, 0);
 
-INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('Button component', '2022-04-01', 1, 1);
+INSERT INTO Module (name, create_date, author, patch_id, bugs_count)
+VALUES ('Button component', '2022-04-01', 1, 1, 0);
 
-INSERT INTO Module (name, create_date, author, patch_id)
-VALUES ('Time library', '2022-04-01', 1, 2);
+INSERT INTO Module (name, create_date, author, patch_id, bugs_count)
+VALUES ('Time library', '2022-04-01', 1, 2, 0);
 
 ----
 -- Programovací jazyky modulů
@@ -688,3 +703,5 @@ GROUP BY
     id,
     first_name,
     second_name;
+
+SELECT * FROM MODULE;
