@@ -703,5 +703,3 @@ GROUP BY
     id,
     first_name,
     second_name;
-
-SELECT * FROM MODULE;
