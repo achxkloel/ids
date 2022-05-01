@@ -22,6 +22,7 @@ DROP TABLE MODULE;
 DROP TABLE PATCH;
 DROP TABLE PROG_LANG;
 DROP TABLE PERSON;
+DROP PROCEDURE add_reward;
 
 -- =============================
 -- VYTVOŘENÍ TABULEK
@@ -713,4 +714,22 @@ GROUP BY
 -- PROCEDURY
 -- =============================
 
+-- Procedura, která přidá vybranou odměnu každému uživateli, který vytvořil Patch, který byl schválen.
 
+CREATE OR REPLACE PROCEDURE add_reward (reward_to_employee NUMBER) AS
+    C_id Patch.created_by%type;
+    CURSOR C IS
+        SELECT created_by FROM Patch WHERE (status = 'approved');
+    BEGIN
+        OPEN C;
+        LOOP
+            FETCH C INTO C_id;
+            EXIT WHEN C%NOTFOUND;
+            INSERT INTO Reward (amount, person_id) VALUES (add_reward.reward_to_employee, C_id);
+        END LOOP;
+        CLOSE C;
+    END add_reward;
+
+BEGIN
+    add_reward(1000);
+END;
