@@ -177,6 +177,13 @@ CREATE TABLE Ticket_bugs (
     PRIMARY KEY (ticket_id, bug_id)
 );
 
+CREATE TABLE Module_wrong_access_log (
+    id GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    create_date VARCHAR(255) NOT NULL,
+    person_id INT NOT NULL,
+    module_id INT NOT NULL
+);
+
 -- =============================
 -- PŘIDÁNÍ VAZEB
 -- =============================
@@ -305,14 +312,18 @@ ALTER TABLE Person_modules ADD CONSTRAINT person_modules_module_id_fk
     FOREIGN KEY (module_id) REFERENCES Module(id)
     ON DELETE CASCADE;
 
+ALTER TABLE Module_wrong_access_log ADD CONSTRAINT module_wrong_access_log_person_modules_fk
+    FOREIGN KEY (person_id, module_id) REFERENCES Person_modules(person_id, module_id)
+    ON DELETE CASCADE;
+
 -- =============================
 -- DATABÁZOVÉ TRIGGERY
 -- =============================
 
--- Trigger, který při vytvoření nového bugu inkrementuje počítadlo bugů v jednotlivých modulech
+-- Trigger, který při vytvoření nového bugu inkrementuje počítadlo bugů v jednotlivých modulech.
 CREATE OR REPLACE TRIGGER bugs_in_module_count
     AFTER INSERT OR DELETE ON Bug
-    REFERENCING OLD as deleted NEW AS inserted
+    REFERENCING OLD AS deleted NEW AS inserted
     FOR EACH ROW
 BEGIN
     IF INSERTING THEN
@@ -323,6 +334,34 @@ BEGIN
         WHERE M.id = :deleted.module_id;
     END IF;
 END;
+/
+
+----
+-- Triger, který při vytvoření nebo změně vazby mezi uživatelem a modulem
+-- zkontroluje role uživatele a v připadě chyby přístupu zapíše tuto informaci
+-- do přislušné tabulky.
+----
+CREATE OR REPLACE TRIGGER person_module_access
+    AFTER INSERT OR UPDATE OF person_id ON Person_modules
+    FOR EACH ROW
+DECLARE
+    user_role_cnt NUMBER;
+    wrong_access EXCEPTION;
+BEGIN
+    SELECT COUNT(*)
+    INTO user_role_cnt
+    FROM Person P
+    WHERE P.id = NEW.person_id AND P.role = 'user';
+
+    IF user_role_cnt > 0 THEN
+        RAISE wrong_access;
+    END IF;
+EXCEPTION
+    WHEN wrong_access THEN
+        INSERT INTO Module_wrong_access_log (create_date, person_id, module_id)
+        VALUES (TO_CHAR(sysdate, 'YYYY-MM-DD'), NEW.person_id, NEW.module_id);
+END;
+/
 
 -- =============================
 -- VLOŽENÍ UKÁZKOVÝCH DAT
