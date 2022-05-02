@@ -8,7 +8,7 @@
 *****************************************************************/
 
 -- =============================
--- ODSTRANĚNÍ TABULEK
+-- ODSTRANĚNÍ OBJEKTU
 -- =============================
 DROP INDEX ticket_index;
 DROP MATERIALIZED VIEW open_tickets_view;
@@ -182,6 +182,13 @@ CREATE TABLE Ticket_bugs (
     PRIMARY KEY (ticket_id, bug_id)
 );
 
+
+----
+-- Module_wrong_access_log
+--
+-- Log záznamů, kde "person_id" je identifikátor uživatele,
+-- který nemí přístup k modulu (špatná role).
+----
 CREATE TABLE Module_wrong_access_log (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     create_date VARCHAR(255) NOT NULL,
@@ -317,6 +324,7 @@ ALTER TABLE Person_modules ADD CONSTRAINT person_modules_module_id_fk
     FOREIGN KEY (module_id) REFERENCES Module(id)
     ON DELETE CASCADE;
 
+-- Odkaz na Person_modules
 ALTER TABLE Module_wrong_access_log ADD CONSTRAINT module_wrong_access_log_person_modules_fk
     FOREIGN KEY (person_id, module_id) REFERENCES Person_modules(person_id, module_id)
     ON DELETE CASCADE;
