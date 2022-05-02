@@ -10,7 +10,11 @@
 -- =============================
 -- ODSTRANĚNÍ TABULEK
 -- =============================
-
+DROP MATERIALIZED VIEW open_tickets_view;
+DROP PROCEDURE set_patch_approved;
+DROP PROCEDURE add_reward;
+DROP TRIGGER person_module_access;
+DROP TRIGGER bugs_in_module_count;
 DROP TABLE PERSON_PROG_LANGS;
 DROP TABLE MODULE_PROG_LANGS;
 DROP TABLE PERSON_MODULES;
@@ -22,10 +26,6 @@ DROP TABLE MODULE;
 DROP TABLE PATCH;
 DROP TABLE PROG_LANG;
 DROP TABLE PERSON;
-DROP TRIGGER bugs_in_module_count;
-DROP TRIGGER person_module_access;
-DROP PROCEDURE add_reward;
-DROP PROCEDURE set_patch_approved;
 
 -- =============================
 -- VYTVOŘENÍ TABULEK
