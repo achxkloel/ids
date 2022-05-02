@@ -10,6 +10,7 @@
 -- =============================
 -- ODSTRANĚNÍ TABULEK
 -- =============================
+DROP INDEX ticket_index;
 DROP MATERIALIZED VIEW open_tickets_view;
 DROP PROCEDURE set_patch_approved;
 DROP PROCEDURE add_reward;
@@ -871,3 +872,88 @@ COMMIT;
 SELECT OT.name, OT.description, OT.create_date
 FROM open_tickets_view OT
 WHERE first_name = 'Lukáš' AND second_name = 'Vincenc';
+
+-- =============================
+-- EXPLAIN PLAN
+-- =============================
+
+----
+-- Explain plan pro dotaz z 3. časti projektu
+--
+-- Kteří programátoři (muži) vytvářeli tikety pouze v roce 2022? (login, first_name, second_name, pocet_tiketu)
+----
+EXPLAIN PLAN FOR
+WITH person_id_list AS (
+    SELECT
+        id,
+        login,
+        first_name,
+        second_name
+    FROM
+        Person P
+    WHERE
+        P.sex = 'M'
+        AND P.role = 'programmer'
+    AND NOT EXISTS (
+        SELECT * FROM
+            Ticket T
+        WHERE
+            P.id = T.created_by
+            AND create_date NOT BETWEEN
+            '2022-01-01' AND '2022-12-31'
+    )
+)
+SELECT
+      IDList.login,
+      IDList.first_name,
+      IDList.second_name,
+      COUNT(*) pocet_tiketu
+FROM
+    Ticket T
+    JOIN person_id_list IDList ON T.created_by = IDList.id
+GROUP BY (
+    IDList.login, IDList.first_name, IDList.second_name
+);
+
+-- Výsledek provedení EXPLAIN PLAN nad výše uvedeným dotazem
+SELECT plan_table_output FROM table ( DBMS_XPLAN.DISPLAY() );
+
+-- Vytvoření pomocného indexu pro zrychlení dotazu
+CREATE INDEX ticket_index ON Ticket (created_by);
+
+-- Spuštění EXPLAIN PLAN nad stejným dotazem po vytvoření indexu
+EXPLAIN PLAN FOR
+WITH person_id_list AS (
+    SELECT
+        id,
+        login,
+        first_name,
+        second_name
+    FROM
+        Person P
+    WHERE
+        P.sex = 'M'
+        AND P.role = 'programmer'
+    AND NOT EXISTS (
+        SELECT * FROM
+            Ticket T
+        WHERE
+            P.id = T.created_by
+            AND create_date NOT BETWEEN
+            '2022-01-01' AND '2022-12-31'
+    )
+)
+SELECT
+      IDList.login,
+      IDList.first_name,
+      IDList.second_name,
+      COUNT(*) pocet_tiketu
+FROM
+    Ticket T
+    JOIN person_id_list IDList ON T.created_by = IDList.id
+GROUP BY (
+    IDList.login, IDList.first_name, IDList.second_name
+);
+
+-- Zobrazení zlepšeného výsledku EXPLAIN PLAN
+SELECT plan_table_output FROM table ( DBMS_XPLAN.DISPLAY() );
