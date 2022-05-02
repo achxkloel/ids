@@ -22,6 +22,8 @@ DROP TABLE MODULE;
 DROP TABLE PATCH;
 DROP TABLE PROG_LANG;
 DROP TABLE PERSON;
+DROP TRIGGER bugs_in_module_count;
+DROP TRIGGER person_module_access;
 DROP PROCEDURE add_reward;
 
 -- =============================
