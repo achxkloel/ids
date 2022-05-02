@@ -872,6 +872,8 @@ GRANT ALL ON PERSON TO xvince01;
 -- Pohled, ve kterém jsou uložené všechny otevřené tikety a informace o
 -- uživatelech, které je vytvořili.
 -- (login, first_name, second_name, email, create_date, name, description)
+--
+-- Generování pohledu musí být spouštěno uživatelem xvince01
 ----
 CREATE MATERIALIZED VIEW open_tickets_view
 NOLOGGING
@@ -889,9 +891,6 @@ REFRESH ON COMMIT AS
     FROM Ticket T
     JOIN Person P ON T.created_by = P.id
     WHERE T.status = 'opened';
-
--- Definice práv na materializovaný pohled pro druhého člena týmu
-GRANT ALL ON open_tickets_view TO xvince01;
 
 -- Které otevřené tikety vytvořil uživatel "Lukáš Vincenc"? (create_date, name, description)
 SELECT OT.name, OT.description, OT.create_date
