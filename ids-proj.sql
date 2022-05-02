@@ -839,3 +839,23 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Wrong date interval');
 END;
 /
+
+----
+-- Pohled, ve kterém jsou uložené všechny otevřené tikety a informace o
+-- uživatelech, které je vytvořili.
+----
+CREATE MATERIALIZED VIEW open_tickets_view
+REFRESH ON COMMIT AS
+    SELECT
+        P.login,
+        P.first_name,
+        P.second_name,
+        P.email,
+        T.create_date,
+        T.name,
+        T.description
+    FROM Ticket T
+    JOIN Person P ON T.created_by = P.id
+    WHERE T.status = 'opened'
+
+-- TODO: access to user + some selects on view
