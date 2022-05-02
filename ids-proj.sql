@@ -25,6 +25,7 @@ DROP TABLE PERSON;
 DROP TRIGGER bugs_in_module_count;
 DROP TRIGGER person_module_access;
 DROP PROCEDURE add_reward;
+DROP PROCEDURE set_patch_approved;
 
 -- =============================
 -- VYTVOŘENÍ TABULEK
@@ -761,16 +762,80 @@ CREATE OR REPLACE PROCEDURE add_reward (reward_to_employee NUMBER) AS
     C_id Patch.created_by%type;
     CURSOR C IS
         SELECT created_by FROM Patch WHERE (status = 'approved');
-    BEGIN
-        OPEN C;
-        LOOP
-            FETCH C INTO C_id;
-            EXIT WHEN C%NOTFOUND;
-            INSERT INTO Reward (amount, person_id) VALUES (add_reward.reward_to_employee, C_id);
-        END LOOP;
-        CLOSE C;
-    END add_reward;
+BEGIN
+    OPEN C;
+    LOOP
+        FETCH C INTO C_id;
+        EXIT WHEN C%NOTFOUND;
+        INSERT INTO Reward (amount, person_id) VALUES (add_reward.reward_to_employee, C_id);
+    END LOOP;
+    CLOSE C;
+END add_reward;
+/
 
 BEGIN
     add_reward(1000);
 END;
+/
+
+----
+-- Procedura, která mění stav na "approved" pouze u těch Patchů, které byli vytvořeny
+-- mezi daty "created_from" a "created_to". Tyto parametry musí být zádané jako string
+-- ve formátu "YYYY-MM-DD". Parameter "login" je login administratora, které tyto Patche schvalil.
+----
+CREATE OR REPLACE PROCEDURE set_patch_approved (
+    login IN VARCHAR(255),
+    created_from IN VARCHAR(255),
+    created_to IN VARCHAR(255)
+) AS
+    user_id Person.id%TYPE;
+    user_role Person.role%TYPE;
+    patch_record Patch%ROWTYPE;
+    created_from_date DATE;
+    created_to_date DATE;
+    user_not_found EXCEPTION;
+    user_wrong_access EXCEPTION;
+    wrong_date_interval EXCEPTION;
+BEGIN
+    SELECT P.id, P.role
+    INTO user_id, user_role
+    FROM Person P
+    WHERE P.login = set_patch_approved.login;
+
+    IF SQL%NOTFOUND THEN
+        RAISE user_not_found;
+    END IF;
+
+    IF user_role = 'user' THEN
+        RAISE user_wrong_access;
+    END IF;
+
+    created_from_date := TO_DATE(created_from, 'YYYY-MM-DD');
+    created_to_date := TO_DATE(created_to, 'YYYY-MM-DD');
+
+    IF created_from_date > created_to_date THEN
+        RAISE wrong_date_interval;
+    END IF;
+
+    FOR patch_record IN (
+        SELECT * FROM Patch P
+        WHERE TO_DATE(P.create_date, 'YYYY-MM-DD') BETWEEN
+        created_from_date AND created_to_date
+    )
+    LOOP
+        UPDATE Patch P
+        SET
+            P.status = 'approved',
+            P.approved_by = user_id
+        WHERE
+            P.id = patch_record.id;
+    END LOOP;
+EXCEPTION
+    WHEN user_not_found THEN
+        DBMS_OUTPUT.PUT_LINE('User "' || login || '" not found');
+    WHEN user_wrong_access THEN
+        DBMS_OUTPUT.PUT_LINE('User access error');
+    WHEN wrong_date_interval THEN
+        DBMS_OUTPUT.PUT_LINE('Wrong date interval');
+END;
+/
