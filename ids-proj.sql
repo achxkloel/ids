@@ -845,6 +845,26 @@ END;
 /
 
 -- =============================
+-- PŘÍSTUPOVÁ PRÁVA
+-- =============================
+
+-- Definice přístupových práv k databázovým objektům pro druhého člena týmu.
+GRANT EXECUTE ON set_patch_approved TO xvince01;
+GRANT EXECUTE ON add_reward TO xvince01;
+GRANT ALL ON Module_wrong_access_log TO xvince01;
+GRANT ALL ON PERSON_PROG_LANGS TO xvince01;
+GRANT ALL ON MODULE_PROG_LANGS TO xvince01;
+GRANT ALL ON PERSON_MODULES TO xvince01;
+GRANT ALL ON TICKET_BUGS TO xvince01;
+GRANT ALL ON REWARD TO xvince01;
+GRANT ALL ON BUG TO xvince01;
+GRANT ALL ON TICKET TO xvince01;
+GRANT ALL ON MODULE TO xvince01;
+GRANT ALL ON PATCH TO xvince01;
+GRANT ALL ON PROG_LANG TO xvince01;
+GRANT ALL ON PERSON TO xvince01;
+
+-- =============================
 -- MATERIALIZOVANÝ POHLED
 -- =============================
 
@@ -854,6 +874,9 @@ END;
 -- (login, first_name, second_name, email, create_date, name, description)
 ----
 CREATE MATERIALIZED VIEW open_tickets_view
+NOLOGGING
+CACHE
+BUILD IMMEDIATE
 REFRESH ON COMMIT AS
     SELECT
         P.login,
@@ -866,6 +889,9 @@ REFRESH ON COMMIT AS
     FROM Ticket T
     JOIN Person P ON T.created_by = P.id
     WHERE T.status = 'opened';
+
+-- Definice práv na materializovaný pohled pro druhého člena týmu
+GRANT ALL ON open_tickets_view TO xvince01;
 
 -- Které otevřené tikety vytvořil uživatel "Lukáš Vincenc"? (create_date, name, description)
 SELECT OT.name, OT.description, OT.create_date
