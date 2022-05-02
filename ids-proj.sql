@@ -788,9 +788,9 @@ END;
 /
 
 ----
--- Procedura, která mění stav na "approved" pouze u těch Patchů, které byli vytvořeny
--- mezi daty "created_from" a "created_to". Tyto parametry musí být zádané jako string
--- ve formátu "YYYY-MM-DD". Parameter "login" je login administratora, které tyto Patche schvalil.
+-- Procedura, která mění stav na "approved" pouze u těch Patchů, které byly vytvořeny
+-- mezi daty "created_from" a "created_to". Tyto parametry musí být zadané jako string
+-- ve formátu "YYYY-MM-DD". Parameter "login" je login administrátora, který tyto Patche schválil.
 ----
 CREATE OR REPLACE PROCEDURE set_patch_approved (
     login IN VARCHAR,
@@ -870,7 +870,7 @@ GRANT ALL ON PERSON TO xvince01;
 
 ----
 -- Pohled, ve kterém jsou uložené všechny otevřené tikety a informace o
--- uživatelech, které je vytvořili.
+-- uživatelích, kteří je vytvořili.
 -- (login, first_name, second_name, email, create_date, name, description)
 ----
 CREATE MATERIALIZED VIEW open_tickets_view
@@ -898,11 +898,11 @@ SELECT OT.name, OT.description, OT.create_date
 FROM open_tickets_view OT
 WHERE first_name = 'Lukáš' AND second_name = 'Vincenc';
 
--- Změna Tiketu a uložení výsledku této transakci.
+-- Změna Tiketu a uložení výsledku této transakce.
 UPDATE Ticket T SET T.status = 'closed' WHERE T.name = 'Division by zero';
 COMMIT;
 
--- Opakovaný dotaz pro demonstraci změny dat v materializovaném pohledu.
+-- Zopakovaný dotaz pro demonstraci změny dat v materializovaném pohledu.
 SELECT OT.name, OT.description, OT.create_date
 FROM open_tickets_view OT
 WHERE first_name = 'Lukáš' AND second_name = 'Vincenc';
