@@ -15,6 +15,7 @@ DROP PROCEDURE set_patch_approved;
 DROP PROCEDURE add_reward;
 DROP TRIGGER person_module_access;
 DROP TRIGGER bugs_in_module_count;
+DROP TABLE Module_wrong_access_log;
 DROP TABLE PERSON_PROG_LANGS;
 DROP TABLE MODULE_PROG_LANGS;
 DROP TABLE PERSON_MODULES;
@@ -181,7 +182,7 @@ CREATE TABLE Ticket_bugs (
 );
 
 CREATE TABLE Module_wrong_access_log (
-    id GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     create_date VARCHAR(255) NOT NULL,
     person_id INT NOT NULL,
     module_id INT NOT NULL
@@ -348,13 +349,13 @@ CREATE OR REPLACE TRIGGER person_module_access
     AFTER INSERT OR UPDATE OF person_id ON Person_modules
     FOR EACH ROW
 DECLARE
-    user_role_cnt NUMBER;
+    user_role_cnt INT;
     wrong_access EXCEPTION;
 BEGIN
     SELECT COUNT(*)
     INTO user_role_cnt
     FROM Person P
-    WHERE P.id = NEW.person_id AND P.role = 'user';
+    WHERE P.id = :NEW.person_id AND P.role = 'user';
 
     IF user_role_cnt > 0 THEN
         RAISE wrong_access;
@@ -362,7 +363,7 @@ BEGIN
 EXCEPTION
     WHEN wrong_access THEN
         INSERT INTO Module_wrong_access_log (create_date, person_id, module_id)
-        VALUES (TO_CHAR(sysdate, 'YYYY-MM-DD'), NEW.person_id, NEW.module_id);
+        VALUES (TO_CHAR(sysdate, 'YYYY-MM-DD'), :NEW.person_id, :NEW.module_id);
 END;
 /
 
@@ -645,9 +646,8 @@ WITH person_id_list AS (
             Ticket T
         WHERE
             P.id = T.created_by
-            AND TO_DATE(create_date, 'YYYY-MM-DD') NOT BETWEEN
-                TO_DATE('2022-01-01', 'YYYY-MM-DD') AND
-                TO_DATE('2022-12-31', 'YYYY-MM-DD')
+            AND create_date NOT BETWEEN
+            '2022-01-01' AND '2022-12-31'
     )
 )
 SELECT
@@ -784,16 +784,13 @@ END;
 -- ve formátu "YYYY-MM-DD". Parameter "login" je login administratora, které tyto Patche schvalil.
 ----
 CREATE OR REPLACE PROCEDURE set_patch_approved (
-    login IN VARCHAR(255),
-    created_from IN VARCHAR(255),
-    created_to IN VARCHAR(255)
+    login IN VARCHAR,
+    created_from IN VARCHAR,
+    created_to IN VARCHAR
 ) AS
     user_id Person.id%TYPE;
     user_role Person.role%TYPE;
     patch_record Patch%ROWTYPE;
-    created_from_date DATE;
-    created_to_date DATE;
-    user_not_found EXCEPTION;
     user_wrong_access EXCEPTION;
     wrong_date_interval EXCEPTION;
 BEGIN
@@ -802,25 +799,18 @@ BEGIN
     FROM Person P
     WHERE P.login = set_patch_approved.login;
 
-    IF SQL%NOTFOUND THEN
-        RAISE user_not_found;
-    END IF;
-
     IF user_role = 'user' THEN
         RAISE user_wrong_access;
     END IF;
 
-    created_from_date := TO_DATE(created_from, 'YYYY-MM-DD');
-    created_to_date := TO_DATE(created_to, 'YYYY-MM-DD');
-
-    IF created_from_date > created_to_date THEN
+    IF created_from > created_to THEN
         RAISE wrong_date_interval;
     END IF;
 
     FOR patch_record IN (
         SELECT * FROM Patch P
-        WHERE TO_DATE(P.create_date, 'YYYY-MM-DD') BETWEEN
-        created_from_date AND created_to_date
+        WHERE P.create_date BETWEEN
+        created_from AND created_to
     )
     LOOP
         UPDATE Patch P
@@ -831,7 +821,7 @@ BEGIN
             P.id = patch_record.id;
     END LOOP;
 EXCEPTION
-    WHEN user_not_found THEN
+    WHEN NO_DATA_FOUND THEN
         DBMS_OUTPUT.PUT_LINE('User "' || login || '" not found');
     WHEN user_wrong_access THEN
         DBMS_OUTPUT.PUT_LINE('User access error');
@@ -840,9 +830,19 @@ EXCEPTION
 END;
 /
 
+BEGIN
+    set_patch_approved('xtorbi00', '2022-02-01', '2022-02-20');
+END;
+/
+
+-- =============================
+-- SELECT DOTAZY
+-- =============================
+
 ----
 -- Pohled, ve kterém jsou uložené všechny otevřené tikety a informace o
 -- uživatelech, které je vytvořili.
+-- (login, first_name, second_name, email, create_date, name, description)
 ----
 CREATE MATERIALIZED VIEW open_tickets_view
 REFRESH ON COMMIT AS
@@ -856,6 +856,18 @@ REFRESH ON COMMIT AS
         T.description
     FROM Ticket T
     JOIN Person P ON T.created_by = P.id
-    WHERE T.status = 'opened'
+    WHERE T.status = 'opened';
 
--- TODO: access to user + some selects on view
+-- Které otevřené tikety vytvořil uživatel "Lukáš Vincenc"? (create_date, name, description)
+SELECT OT.name, OT.description, OT.create_date
+FROM open_tickets_view OT
+WHERE first_name = 'Lukáš' AND second_name = 'Vincenc';
+
+-- Změna Tiketu a uložení výsledku této transakci.
+UPDATE Ticket T SET T.status = 'closed' WHERE T.name = 'Division by zero';
+COMMIT;
+
+-- Opakovaný dotaz pro demonstraci změny dat v materializovaném pohledu.
+SELECT OT.name, OT.description, OT.create_date
+FROM open_tickets_view OT
+WHERE first_name = 'Lukáš' AND second_name = 'Vincenc';
